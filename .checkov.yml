@@ -1,0 +1,20 @@
+# Checkov baseline. These checks are intentionally skipped because they conflict
+# with the cost-aware showcase design. Each is a deliberate, documented trade-off
+# — not an oversight. Remove the skip to harden for a real prod deployment.
+
+framework:
+  - terraform
+
+skip-check:
+  # The dev profile is single-AZ on purpose to halve cost. prod.tfvars sets
+  # multi_az = true, which is the real production posture.
+  - CKV_AWS_157  # RDS Multi-AZ
+  - CKV_AWS_339  # RDS cluster Multi-AZ
+
+  # No VPC Flow Logs in the showcase to avoid the CloudWatch Logs ingestion cost.
+  # Enable for production network forensics (PCI Req. 10).
+  - CKV2_AWS_11
+
+  # Auto minor version upgrades are enabled, but we pin engine_version for
+  # reproducible plans; checkov's "latest version" check is noise here.
+  - CKV_AWS_354

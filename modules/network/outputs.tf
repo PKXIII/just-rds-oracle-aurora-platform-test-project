@@ -1,0 +1,14 @@
+output "vpc_id" {
+  description = "ID of the platform VPC."
+  value       = aws_vpc.this.id
+}
+
+output "db_subnet_group_name" {
+  description = "Name of the DB subnet group spanning the private subnets."
+  value       = aws_db_subnet_group.this.name
+}
+
+output "db_security_group_id" {
+  description = "Security group ID for the database tier."
+  value       = aws_security_group.db.id
+}

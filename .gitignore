@@ -1,0 +1,31 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Never commit real variable values or secrets
+*.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Plan output
+*.tfplan
+
+# Local editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# The JD screenshots are local reference only, not part of the repo
+JD*.png
+
+# Local Claude Code working files — not part of the repo
+claude-logs/
+claude_skip_permissions.sh
