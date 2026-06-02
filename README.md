@@ -133,6 +133,10 @@ make apply ENV=dev       # builds the dev stack — see cost note below
 make nuke  ENV=dev       # tears it all down
 ```
 
+> 📋 Deploying to a real account? Follow the step-by-step checklist in
+> **[DEPLOY.md](DEPLOY.md)** — it covers credentials, the engine-version
+> pre-flight, the state-backend decision, and teardown.
+
 ---
 
 ## Cost controls
