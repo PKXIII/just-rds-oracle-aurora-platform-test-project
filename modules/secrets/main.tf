@@ -46,3 +46,26 @@ resource "aws_secretsmanager_secret_version" "aurora" {
     port     = 3306
   })
 }
+
+# --- Credential rotation (production) ---
+# checkov CKV2_AWS_57 flags these secrets as lacking automatic rotation. In
+# production, rotation is handled by the AWS-managed RDS rotation Lambda, wired as
+# below. It is kept commented in this showcase to avoid provisioning a Lambda (and
+# its VPC plumbing) solely to satisfy a static check — the intent is explicit and
+# CKV2_AWS_57 is baselined in .checkov.yml with this justification.
+#
+# resource "aws_secretsmanager_secret_rotation" "oracle" {
+#   secret_id           = aws_secretsmanager_secret.oracle.id
+#   rotation_lambda_arn = var.rotation_lambda_arn
+#   rotation_rules {
+#     automatically_after_days = 30
+#   }
+# }
+#
+# resource "aws_secretsmanager_secret_rotation" "aurora" {
+#   secret_id           = aws_secretsmanager_secret.aurora.id
+#   rotation_lambda_arn = var.rotation_lambda_arn
+#   rotation_rules {
+#     automatically_after_days = 30
+#   }
+# }

@@ -110,12 +110,21 @@ resource "aws_security_group" "db" {
   }
 
   egress {
-    description = "Allow all outbound (kept inside VPC by routing)"
+    description = "Outbound restricted to within the VPC (least privilege)"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.vpc_cidr]
   }
 
   tags = { Name = "${var.name_prefix}-db-sg" }
+}
+
+# AWS always creates a default security group per VPC. It should never carry
+# workloads, so we lock it to deny all traffic in both directions. Satisfies PCI
+# segmentation and checkov CKV2_AWS_12 — everything must use the explicit db SG.
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.this.id
+  # No ingress/egress blocks == deny all.
+  tags = { Name = "${var.name_prefix}-default-deny-all" }
 }

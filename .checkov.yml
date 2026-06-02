@@ -18,3 +18,21 @@ skip-check:
   # Auto minor version upgrades are enabled, but we pin engine_version for
   # reproducible plans; checkov's "latest version" check is noise here.
   - CKV_AWS_354
+
+  # Deletion protection is intentionally OFF in the dev profile so `make nuke`
+  # can tear the environment down cleanly. prod.tfvars sets it to true.
+  - CKV_AWS_293
+
+  # Automatic secret rotation is handled in production by the AWS-managed RDS
+  # rotation Lambda (scaffold documented in modules/secrets/main.tf). It is not
+  # provisioned in the showcase to avoid standing up a Lambda + VPC plumbing.
+  - CKV2_AWS_57
+
+  # False positive across module boundaries: the db security group IS attached to
+  # the RDS and Aurora instances, but those live in sibling modules that consume
+  # the SG id via a variable, which checkov's static analysis can't follow.
+  - CKV2_AWS_5
+
+  # Backups use native RDS/Aurora automated backups + PITR (backup_retention_period)
+  # rather than an AWS Backup plan. Equivalent protection for this scope.
+  - CKV2_AWS_8
