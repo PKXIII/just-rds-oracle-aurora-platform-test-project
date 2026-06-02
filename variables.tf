@@ -30,6 +30,18 @@ variable "enable_nat_gateway" {
     NAT Gateway costs ~$33/month just to sit idle, so it is OFF by default.
     Databases live in private subnets with no outbound internet need. Only turn
     this on if a subnet genuinely needs egress (e.g. Lambda calling an external API).
+    For AWS-only egress, prefer enable_interface_endpoints instead — cheaper and
+    traffic never leaves the AWS network.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "enable_interface_endpoints" {
+  description = <<-EOT
+    Create interface VPC endpoints (Secrets Manager, CloudWatch, Logs) so
+    VPC-resident compute reaches AWS APIs privately without a NAT Gateway.
+    ~$7/month each, off by default. The free S3 gateway endpoint is always created.
   EOT
   type        = bool
   default     = false

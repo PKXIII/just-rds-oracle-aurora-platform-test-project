@@ -6,10 +6,11 @@
 # NOTE: applying this profile incurs real, ongoing cost. It exists to show the
 # production-grade intent; it is not meant to be left running for a showcase.
 
-environment        = "prod"
-aws_region         = "ap-northeast-1"
-enable_nat_gateway = false
-monthly_budget_usd = 1500
+environment                = "prod"
+aws_region                 = "ap-northeast-1"
+enable_nat_gateway         = false
+enable_interface_endpoints = true # private AWS API access (Secrets Manager rotation, CloudWatch) without NAT
+monthly_budget_usd         = 1500
 
 oracle = {
   engine              = "oracle-se2"

@@ -6,9 +6,10 @@ locals {
 module "network" {
   source = "./modules/network"
 
-  name_prefix        = local.name_prefix
-  vpc_cidr           = var.vpc_cidr
-  enable_nat_gateway = var.enable_nat_gateway
+  name_prefix                = local.name_prefix
+  vpc_cidr                   = var.vpc_cidr
+  enable_nat_gateway         = var.enable_nat_gateway
+  enable_interface_endpoints = var.enable_interface_endpoints
 }
 
 # Customer-managed KMS key for encryption at rest (PCI DSS Req. 3).

@@ -13,3 +13,13 @@ variable "enable_nat_gateway" {
   type        = bool
   default     = false
 }
+
+variable "enable_interface_endpoints" {
+  description = <<-EOT
+    Create interface VPC endpoints (Secrets Manager, CloudWatch metrics, Logs) so
+    VPC-resident compute reaches AWS APIs without a NAT Gateway. ~$7/mo each, so
+    off by default. The free S3 gateway endpoint is always created regardless.
+  EOT
+  type        = bool
+  default     = false
+}

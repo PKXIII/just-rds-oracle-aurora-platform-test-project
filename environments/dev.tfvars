@@ -2,10 +2,11 @@
 # Single-AZ, smallest viable instances, no NAT Gateway, no deletion protection so
 # `terraform destroy` always works. This is the profile you run plan against for free.
 
-environment        = "dev"
-aws_region         = "ap-northeast-1"
-enable_nat_gateway = false
-monthly_budget_usd = 5
+environment                = "dev"
+aws_region                 = "ap-northeast-1"
+enable_nat_gateway         = false
+enable_interface_endpoints = false # keep dev free; only the S3 gateway endpoint (free) is created
+monthly_budget_usd         = 5
 
 oracle = {
   engine              = "oracle-se2"

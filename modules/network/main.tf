@@ -128,3 +128,63 @@ resource "aws_default_security_group" "default" {
   # No ingress/egress blocks == deny all.
   tags = { Name = "${var.name_prefix}-default-deny-all" }
 }
+
+# ---------------------------------------------------------------------------
+# VPC Endpoints
+# Let VPC-resident compute (a Secrets Manager rotation Lambda, an app tier, or a
+# bastion) reach AWS APIs *privately* — no route to the internet, no NAT Gateway.
+# This is the cheaper, more PCI-friendly alternative to NAT for AWS-only egress.
+#
+# The S3 gateway endpoint is free and always on. Interface endpoints bill ~$0.01/hr
+# each (~$7/mo), so they are gated behind a flag and off by default.
+# Note: RDS/Aurora are managed services and do NOT traverse these endpoints.
+# ---------------------------------------------------------------------------
+data "aws_region" "current" {}
+
+# S3 — gateway endpoint (free). Also enables RDS S3 integration / Data Pump export.
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_vpc.this.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.private.id]
+  tags              = { Name = "${var.name_prefix}-s3-endpoint" }
+}
+
+# Dedicated SG for interface endpoints: HTTPS from within the VPC only.
+resource "aws_security_group" "endpoints" {
+  count       = var.enable_interface_endpoints ? 1 : 0
+  name        = "${var.name_prefix}-vpce-sg"
+  description = "HTTPS to interface VPC endpoints from within the VPC"
+  vpc_id      = aws_vpc.this.id
+
+  ingress {
+    description = "HTTPS from within VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  # Omitting egress == deny all outbound from the endpoint SG (least privilege).
+  tags = { Name = "${var.name_prefix}-vpce-sg" }
+}
+
+locals {
+  # The AWS APIs VPC-resident compute actually calls in this platform.
+  interface_endpoints = var.enable_interface_endpoints ? toset([
+    "secretsmanager", # fetch DB credentials / run rotation
+    "monitoring",     # publish custom CloudWatch metrics
+    "logs",           # ship application logs to CloudWatch Logs
+  ]) : toset([])
+}
+
+resource "aws_vpc_endpoint" "interface" {
+  for_each            = local.interface_endpoints
+  vpc_id              = aws_vpc.this.id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.${each.key}"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.endpoints[0].id]
+  private_dns_enabled = true
+  tags                = { Name = "${var.name_prefix}-${each.key}-endpoint" }
+}
